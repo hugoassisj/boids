@@ -1,117 +1,143 @@
-let NUMBER_OF_AGENTS = 10;
-
-let MAX_VELOCITY_Slider;
-let MAX_ATTRACT_FORCE_Slider;
-let MAX_REPULSE_FORCE_Slider;
-let RADIUS_OF_VIEW_Slider;
-let RADIUS_OF_NEIGHBOORS_Slider;
-
-let RADIUS_OF_VIEW_Checkbox;
-
+let numberOfAgents = 1
 let agents = []
-let mouse;
 
-let v = 0;
-let a = 0;
-let r = 0;
-let rad = 0;
+// UI Settings---------------------------------------------------------------------------------------------------
+// Slider Objects
+let velocitySlider
 
+let attractionForceSlider
+let attractionRadiusSlider
+
+let repulsionForceSlider
+let repulsionRadiusSlider
+
+let showRadiusCheckbox
+
+// Slider Values
+let velocitySliderValue = 0
+
+let attractionForceSliderValue = 0
+let attractionRadiusSliderValue = 0
+
+let repulsionForceSliderValue = 0
+let repulsionRadiusSliderValue = 0
+
+let sliderWidth = 200
+let sliderSpacing = 40
+let firstSliderX = 20
+let sliderY
+let textY
+// --------------------------------------------------------------------------------------------------------------
+
+
+// Setup Function -----------------------------------------------------------------------------------------------
 function setup() {
-  createCanvas(windowWidth, windowHeight - 4);
-  setupUI();
+  createCanvas(windowWidth, windowHeight - 4)
 
+  sliderY = windowHeight - 60
+  textY = sliderY - 10
 
+  setupUI()
 }
 
+// Draw Function ------------------------------------------------------------------------------------------------
 function draw() {
 
-  updateConstants();
+  updateConstants()
 
-  background(50, 50, 50);
+  background(50, 50, 50)
 
-  drawUI();
-
-  mouse = createVector(windowWidth / 2, windowHeight / 2); //mouseX,mouseY);
+  drawUI()
 
   for (let i = 0; i < agents.length; i++) {
-    //agents[i].seek(mouse);
-    agents[i].update();
-    agents[i].show();
-    
+    //agents[i].attract(mouse)
+    agents[i].update()
+    agents[i].show()
+
     for (let j = 0; j < agents.length; j++) {
-      if (i != j && agents[i].checkDist(agents[j])) {
-        agents[i].avoid(agents[j]);
+      if (i != j && agents[i].checkRepulsionDistance(agents[j])) {
+        agents[i].avoid(agents[j])
       }
-      if (i != j && agents[i].checkNeighboors(agents[j])) {
-        agents[i].align(agents);
+      if (i != j && agents[i].checkAttractionDistance(agents[j])) {
+        agents[i].align(agents)
+        //agents[i].gather(agents)
+
       }
     }
   }
 }
 
+// Create agents on mouse click ---------------------------------------------------------------------------------
 function mousePressed(event) {
-  for (let i = 0; i < NUMBER_OF_AGENTS; i++) {
-    let a = new Agent(mouseX, mouseY);
-    agents.push(a);
+  if (mouseY < windowHeight - 60) {
+    for (let i = 0; i < numberOfAgents; i++) {
+      let a = new Agent(mouseX, mouseY)
+      //let a = new Agent(random(0, windowWidth), random(0, windowHeight))
+      agents.push(a)
+    }
   }
 }
 
+// Configure the position and apeareance of UI Elements ---------------------------------------------------------
 function setupUI() {
-  textSize(20);
+  textSize(20)
 
-  RADIUS_OF_VIEW_Checkbox = createCheckbox('Show Radius', false);
-  RADIUS_OF_VIEW_Checkbox.position(1220, windowHeight - 60);
-  RADIUS_OF_VIEW_Checkbox.changed(RADIUS_OF_VIEW_Checkbox_Event);
+  velocitySlider = createSlider(0, 50, 3.5, 0.05)
+  velocitySlider.style('width', str(sliderWidth) + 'px')
+  velocitySlider.position(firstSliderX, sliderY)
 
-  MAX_VELOCITY_Slider = createSlider(0, 50, 3.5, 0.05);
-  MAX_VELOCITY_Slider.style('width', '200px');
-  MAX_VELOCITY_Slider.position(20, windowHeight - 60);
+  attractionForceSlider = createSlider(0, 5, 0.09, 0.01)
+  attractionForceSlider.style('width', str(sliderWidth) + 'px')
+  attractionForceSlider.position(firstSliderX + sliderWidth + sliderSpacing, sliderY)
 
-  MAX_ATTRACT_FORCE_Slider = createSlider(0, 5, 0.09, 0.01);
-  MAX_ATTRACT_FORCE_Slider.style('width', '200px');
-  MAX_ATTRACT_FORCE_Slider.position(260, windowHeight - 60);
+  attractionRadiusSlider = createSlider(0, 350, 150, 2)
+  attractionRadiusSlider.style('width', str(sliderWidth) + 'px')
+  attractionRadiusSlider.position(firstSliderX + 2 * (sliderWidth + sliderSpacing), sliderY)
 
-  MAX_REPULSE_FORCE_Slider = createSlider(0, 5, 0.38, 0.01);
-  MAX_REPULSE_FORCE_Slider.style('width', '200px');
-  MAX_REPULSE_FORCE_Slider.position(500, windowHeight - 60);
+  repulsionForceSlider = createSlider(0, 5, 0.38, 0.01)
+  repulsionForceSlider.style('width', str(sliderWidth) + 'px')
+  repulsionForceSlider.position(firstSliderX + 3 * (sliderWidth + sliderSpacing), sliderY)
 
-  RADIUS_OF_VIEW_Slider = createSlider(0, 250, 56, 2);
-  RADIUS_OF_VIEW_Slider.style('width', '200px');
-  RADIUS_OF_VIEW_Slider.position(740, windowHeight - 60);
+  repulsionRadiusSlider = createSlider(0, 250, 56, 2)
+  repulsionRadiusSlider.style('width', str(sliderWidth) + 'px')
+  repulsionRadiusSlider.position(firstSliderX + 4 * (sliderWidth + sliderSpacing), sliderY)
 
-  RADIUS_OF_NEIGHBOORS_Slider = createSlider(0, 350, 150, 2);
-  RADIUS_OF_NEIGHBOORS_Slider.style('width', '200px');
-  RADIUS_OF_NEIGHBOORS_Slider.position(980, windowHeight - 60);
+  showRadiusCheckbox = createCheckbox('Show Radius', false)
+  showRadiusCheckbox.position(firstSliderX + 5 * (sliderWidth + sliderSpacing), sliderY)
+  showRadiusCheckbox.changed(showRadiusCheckboxEvent)
+
 
 }
 
-
+//Get constants values from UI and set them in the engine -------------------------------------------------------
 function updateConstants() {
-  v = MAX_VELOCITY_Slider.value();
-  a = MAX_ATTRACT_FORCE_Slider.value();
-  r = MAX_REPULSE_FORCE_Slider.value();
-  rad = RADIUS_OF_VIEW_Slider.value();
-  rad2 = RADIUS_OF_NEIGHBOORS_Slider.value();
+  velocitySliderValue = velocitySlider.value()
 
-  Agent.setConstants(v, a, r, rad, rad2);
+  attractionForceSliderValue = attractionForceSlider.value()
+  attractionRadiusSliderValue = attractionRadiusSlider.value()
+
+  repulsionForceSliderValue = repulsionForceSlider.value()
+  repulsionRadiusSliderValue = repulsionRadiusSlider.value()
+
+  Agent.setConstants(velocitySliderValue, attractionForceSliderValue, attractionRadiusSliderValue, repulsionForceSliderValue, repulsionRadiusSliderValue)
 }
 
+//Draw values from engine in UI ---------------------------------------------------------------------------------
 function drawUI() {
-  fill(200);
-  noStroke();
-  text('Max Vel: ' + v, 20, windowHeight - 70);
-  text('Max Atract: ' + a, 260, windowHeight - 70);
-  text('Max Repulse: ' + r, 500, windowHeight - 70);
-  text('Radius Rep: ' + rad, 740, windowHeight - 70);
-  text('Radius Neigh: ' + rad2, 980, windowHeight - 70);
+  fill(200)
+  noStroke()
+  text('Velocity: ' + velocitySliderValue, firstSliderX, windowHeight - 70)
+  text('Attraction Force: ' + attractionForceSliderValue, firstSliderX + sliderWidth + sliderSpacing, textY)
+  text('Repulsion Force: ' + repulsionForceSliderValue, firstSliderX + 2 * (sliderWidth + sliderSpacing), textY)
+  text('Repulsion Radius: ' + repulsionRadiusSliderValue, firstSliderX + 3 * (sliderWidth + sliderSpacing), textY)
+  text('Attraction Radius: ' + attractionRadiusSliderValue, firstSliderX + 4 * (sliderWidth + sliderSpacing), textY)
 }
 
-
-
-function RADIUS_OF_VIEW_Checkbox_Event() {
+//Handle checkbox events ----------------------------------------------------------------------------------------
+function showRadiusCheckboxEvent() {
   if (this.checked()) {
-    Agent.displayRadius(true);
+    Agent.displayRadius(true)
   } else {
-    Agent.displayRadius(false);
+    Agent.displayRadius(false)
   }
 }
