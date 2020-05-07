@@ -5,7 +5,7 @@ let MAX_REPULSE_FORCE = 0.38;
 let RADIUS_OF_VIEW = 85;
 let RADIUS_OF_NEIGHBOORS = 250;
 
-let DIRECRION_LINE_SIZE = 25;
+let DIRECRION_LINE_SIZE = 15;
 
 let AGENT_WIDTH = 30;
 let AGENT_HEIGTH = 30;
@@ -71,7 +71,7 @@ class Agent {
     let distance = p5.Vector.dist(other.position, this.position);
     if ((distance > 0) && (distance <= RADIUS_OF_VIEW)) {
       if (showRadius)
-        this.drawRadius(220, 220, 220, 80)
+        this.drawRadius(220, 220, 220, 50, RADIUS_OF_VIEW)
       return true;
     } else
       return false
@@ -81,7 +81,7 @@ class Agent {
     let distance = p5.Vector.dist(other.position, this.position);
     if ((distance > 0) && (distance <= RADIUS_OF_NEIGHBOORS)) {
       if (showRadius)
-        this.drawRadius(255, 255, 255, 80)
+        this.drawRadius(255, 0, 0, 50, RADIUS_OF_NEIGHBOORS)
       return true;
     } else
       return false
@@ -150,12 +150,12 @@ class Agent {
     pop();
   }
 
-  drawRadius(r, g, b, o) {
+  drawRadius(r, g, b, o, rad) {
     push();
     stroke(r, g, b, o);
     noFill();
     translate(this.position.x, this.position.y);
-    ellipse(0, 0, RADIUS_OF_VIEW);
+    ellipse(0, 0, rad);
     pop();
   }
 
@@ -177,11 +177,12 @@ class Agent {
     showRadius = display;
   }
 
-  static setConstants(v, a, r, rad) {
+  static setConstants(v, a, r, rad, rad2) {
     MAX_VELOCITY = v;
     MAX_ATTRACT_FORCE = a;
     MAX_REPULSE_FORCE = r;
     RADIUS_OF_VIEW = rad;
+    RADIUS_OF_NEIGHBOORS = rad2;
   }
 
 }

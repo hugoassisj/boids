@@ -4,6 +4,7 @@ let MAX_VELOCITY_Slider;
 let MAX_ATTRACT_FORCE_Slider;
 let MAX_REPULSE_FORCE_Slider;
 let RADIUS_OF_VIEW_Slider;
+let RADIUS_OF_NEIGHBOORS_Slider;
 
 let RADIUS_OF_VIEW_Checkbox;
 
@@ -49,7 +50,7 @@ function draw() {
 }
 
 function mousePressed(event) {
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < NUMBER_OF_AGENTS; i++) {
     let a = new Agent(mouseX, mouseY);
     agents.push(a);
   }
@@ -59,14 +60,14 @@ function setupUI() {
   textSize(20);
 
   RADIUS_OF_VIEW_Checkbox = createCheckbox('Show Radius', false);
-  RADIUS_OF_VIEW_Checkbox.position(980, windowHeight - 60);
+  RADIUS_OF_VIEW_Checkbox.position(1220, windowHeight - 60);
   RADIUS_OF_VIEW_Checkbox.changed(RADIUS_OF_VIEW_Checkbox_Event);
 
-  MAX_VELOCITY_Slider = createSlider(0, 50, 6.2, 0.05);
+  MAX_VELOCITY_Slider = createSlider(0, 50, 3.5, 0.05);
   MAX_VELOCITY_Slider.style('width', '200px');
   MAX_VELOCITY_Slider.position(20, windowHeight - 60);
 
-  MAX_ATTRACT_FORCE_Slider = createSlider(0, 5, 0.3, 0.01);
+  MAX_ATTRACT_FORCE_Slider = createSlider(0, 5, 0.09, 0.01);
   MAX_ATTRACT_FORCE_Slider.style('width', '200px');
   MAX_ATTRACT_FORCE_Slider.position(260, windowHeight - 60);
 
@@ -74,9 +75,13 @@ function setupUI() {
   MAX_REPULSE_FORCE_Slider.style('width', '200px');
   MAX_REPULSE_FORCE_Slider.position(500, windowHeight - 60);
 
-  RADIUS_OF_VIEW_Slider = createSlider(0, 250, 85, 2);
+  RADIUS_OF_VIEW_Slider = createSlider(0, 250, 56, 2);
   RADIUS_OF_VIEW_Slider.style('width', '200px');
   RADIUS_OF_VIEW_Slider.position(740, windowHeight - 60);
+
+  RADIUS_OF_NEIGHBOORS_Slider = createSlider(0, 350, 150, 2);
+  RADIUS_OF_NEIGHBOORS_Slider.style('width', '200px');
+  RADIUS_OF_NEIGHBOORS_Slider.position(980, windowHeight - 60);
 
 }
 
@@ -86,17 +91,19 @@ function updateConstants() {
   a = MAX_ATTRACT_FORCE_Slider.value();
   r = MAX_REPULSE_FORCE_Slider.value();
   rad = RADIUS_OF_VIEW_Slider.value();
+  rad2 = RADIUS_OF_NEIGHBOORS_Slider.value();
 
-  Agent.setConstants(v, a, r, rad);
+  Agent.setConstants(v, a, r, rad, rad2);
 }
 
 function drawUI() {
-  fill(50);
+  fill(200);
   noStroke();
   text('Max Vel: ' + v, 20, windowHeight - 70);
   text('Max Atract: ' + a, 260, windowHeight - 70);
   text('Max Repulse: ' + r, 500, windowHeight - 70);
-  text('Radius: ' + rad, 740, windowHeight - 70);
+  text('Radius Rep: ' + rad, 740, windowHeight - 70);
+  text('Radius Neigh: ' + rad2, 980, windowHeight - 70);
 }
 
 
