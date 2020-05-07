@@ -71,8 +71,8 @@ function draw() {
 function mousePressed(event) {
   if (mouseY < windowHeight - 60) {
     for (let i = 0; i < numberOfAgents; i++) {
-      let a = new Agent(mouseX, mouseY)
-      //let a = new Agent(random(0, windowWidth), random(0, windowHeight))
+      //let a = new Agent(mouseX, mouseY)
+      let a = new Agent(random(0, windowWidth), random(0, windowHeight))
       agents.push(a)
     }
   }
