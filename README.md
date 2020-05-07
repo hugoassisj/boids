@@ -1,3 +1,5 @@
+[![HitCount](http://hits.dwyl.com/hugoassisj/boids.svg)](http://hits.dwyl.com/hugoassisj/boids)
+
 # Boids
 Implementation of  Boids Algorithm.
 
