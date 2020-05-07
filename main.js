@@ -7,13 +7,13 @@ let RADIUS_OF_VIEW_Slider;
 
 let RADIUS_OF_VIEW_Checkbox;
 
-let MAX_VELOCITY_Slider_old;
-let MAX_ATTRACT_FORCE_Slider_old;
-let MAX_REPULSE_FORCE_Slider_old;
-let RADIUS_OF_VIEW_Slider_old;
-
 let agents = []
 let mouse;
+
+let v = 0;
+let a = 0;
+let r = 0;
+let rad = 0;
 
 function setup() {
   createCanvas(windowWidth, windowHeight - 4);
@@ -22,37 +22,25 @@ function setup() {
 }
 
 function draw() {
-  const v = MAX_VELOCITY_Slider.value();
-  const a = MAX_ATTRACT_FORCE_Slider.value();
-  const r = MAX_REPULSE_FORCE_Slider.value();
-  const rad = RADIUS_OF_VIEW_Slider.value();
 
-  Agent.setConstants(v, a, r, rad);
+  updateConstants();
 
-  mouse = createVector(windowWidth / 2, windowHeight / 2); //mouseX,mouseY);
   background(180, 180, 180);
 
-  fill(50);
-  noStroke();
-  text('Max Vel: ' + v, 20, windowHeight - 70);
-  text('Max Atract: ' + a, 260, windowHeight - 70);
-  text('Max Repulse: ' + r, 500, windowHeight - 70);
-  text('Radius: ' + rad, 740, windowHeight - 70);
+  drawUI();
 
-  console.log(v, a, r, rad);
-
+  mouse = createVector(windowWidth / 2, windowHeight / 2); //mouseX,mouseY);
 
   for (let i = 0; i < agents.length; i++) {
-    //agents[i].setAngle(45);
+    //agents[i].seek(mouse);
     agents[i].update();
     agents[i].show();
-    agents[i].seek(mouse);
-
+    
     for (let j = 0; j < agents.length; j++) {
       if (i != j && agents[i].checkDist(agents[j])) {
+        agents[i].align(agents);
         agents[i].avoid(agents[j]);
       }
-
     }
   }
 }
@@ -89,6 +77,27 @@ function setupUI() {
 
 }
 
+
+function updateConstants() {
+  v = MAX_VELOCITY_Slider.value();
+  a = MAX_ATTRACT_FORCE_Slider.value();
+  r = MAX_REPULSE_FORCE_Slider.value();
+  rad = RADIUS_OF_VIEW_Slider.value();
+
+  Agent.setConstants(v, a, r, rad);
+}
+
+function drawUI() {
+  fill(50);
+  noStroke();
+  text('Max Vel: ' + v, 20, windowHeight - 70);
+  text('Max Atract: ' + a, 260, windowHeight - 70);
+  text('Max Repulse: ' + r, 500, windowHeight - 70);
+  text('Radius: ' + rad, 740, windowHeight - 70);
+}
+
+
+
 function RADIUS_OF_VIEW_Checkbox_Event() {
   if (this.checked()) {
     Agent.displayRadius(true);
@@ -96,14 +105,3 @@ function RADIUS_OF_VIEW_Checkbox_Event() {
     Agent.displayRadius(false);
   }
 }
-
-
-
-
-
-// function doubleClicked(event) {
-//   for (let i = 0; i < NUMBER_OF_AGENTS; i++) {
-//     let a = new Agent(random(1, windowWidth - 40), random(0, windowHeight - 80), 0);
-//     agents.push(a);
-//   }
-// }

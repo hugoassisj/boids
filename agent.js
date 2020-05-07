@@ -1,6 +1,7 @@
-let MAX_VELOCITY = 5;
-let MAX_ATTRACT_FORCE = 0.255;
-let MAX_REPULSE_FORCE = 0.35 //0.105;
+let MAX_VELOCITY = 14.5;
+let MAX_ATTRACT_FORCE = 0.3;
+let MAX_REPULSE_FORCE = 0.01;
+let RADIUS_OF_VIEW = 115;
 
 let DIRECRION_LINE_SIZE = 25;
 
@@ -10,9 +11,7 @@ let AGENT_HEIGTH = 30;
 let MAX_RGB_COLOR_RANGE = 245;
 let MIN_RGB_COLOR_RANGE = 100;
 
-let RADIUS_OF_VIEW = 200;
-
-let show = false;
+let showRadius = false;
 
 class Agent {
   constructor(x, y) {
@@ -34,76 +33,55 @@ class Agent {
   update() {
     //Update position
     this.position.add(this.velocity);
-    
+
     //Update velocity
     this.velocity.add(this.acceleration);
     this.velocity.limit(MAX_VELOCITY);
 
+    //Canvas limits
     this.checkBounds();
-    // Reset acceleration each cycle
+
+    //Reset acceleration each cycle
     this.acceleration.mult(0);
   }
-
-
-  static setConstants(v, a, r, rad) {
-    MAX_VELOCITY = v;
-    MAX_ATTRACT_FORCE = a;
-    MAX_REPULSE_FORCE = r;
-    RADIUS_OF_VIEW = rad;
-  }
-
-
 
   applyForce(force) {
     this.acceleration.add(force);
   }
 
   checkBounds() {
-    if (this.getPos().y < -this.size.x / 2) {
-      this.setPos(this.getPos().x, windowHeight + 40);
+    if (this.position.y < -this.size.x / 2) {
+      this.position.y = windowHeight + 40;
     }
-    if (this.getPos().x < -25) {
-      this.setPos(windowWidth, this.getPos().y);
+    if (this.position.x < -25) {
+      this.position.x = windowWidth;
     }
-    if (this.getPos().x > windowWidth) {
-      this.setPos(0, this.getPos().y);
+    if (this.position.x > windowWidth) {
+      this.position.x = 0;
     }
-    if (this.getPos().y > windowHeight + 40) {
-      this.setPos(this.getPos().x, 0);
+    if (this.position.y > windowHeight + 40) {
+      this.position.y = 0;
     }
   }
-
-  setAngle(angle) {
-    this.heading = radians(angle);
-  }
-
-
-  getPos() {
-    return this.position;
-  }
-
-  setPos(x, y) {
-    this.position.x = x;
-    this.position.y = y;
-  }
-
 
   checkDist(other) {
     let distance = p5.Vector.dist(other.position, this.position);
     if ((distance > 0) && (distance <= RADIUS_OF_VIEW)) {
-      stroke(255, 0, 0);
-      push();
-      stroke(220,220,220,80);
-      noFill();
-      translate(this.position.x, this.position.y);
-      if(show)
-          ellipse(0, 0, RADIUS_OF_VIEW);
-
-      pop();
+      if (showRadius)
+        this.drawRadius()
       return true;
     } else
       return false
+  }
 
+  seek(targetPosition) {
+    let desiredVelocity = p5.Vector.sub(targetPosition, this.position);
+    desiredVelocity.normalize().mult(MAX_VELOCITY);
+
+    let steer = p5.Vector.sub(desiredVelocity, this.velocity);
+    steer.limit(MAX_ATTRACT_FORCE);
+
+    this.applyForce(steer);
   }
 
   avoid(other) {
@@ -118,48 +96,26 @@ class Agent {
 
     // this.drawArrow(this.position, to_other, 'red');
     // this.drawArrow(this.position, this.velocity, 'blue');
-
-
   }
 
-  drawArrow(base, vec, myColor) {
-    push();
-    stroke(myColor);
-    strokeWeight(3);
-    fill(myColor);
-    translate(base.x, base.y);
-    line(0, 0, vec.x, vec.y);
-    rotate(vec.heading());
-    let arrowSize = 7;
-    translate(vec.mag() - arrowSize, 0);
-    triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
-    pop();
-  }
+  align(agents) {
+    let desiredVelocity = createVector();
+    let total = 0;
+    for (let other of agents) {
+      desiredVelocity.add(other.velocity);
+      total++;
+    }
+    if (total > 0)
+      desiredVelocity.div(total);
 
-  seek(target) {
-    let desired = p5.Vector.sub(target, this.position);
-    desired.normalize().mult(MAX_VELOCITY);
+    desiredVelocity.sub(this.velocity);
+    desiredVelocity.normalize().mult(MAX_VELOCITY);
 
-    let steer = p5.Vector.sub(desired, this.velocity);
+    let steer = p5.Vector.sub(desiredVelocity, this.velocity);
     steer.limit(MAX_ATTRACT_FORCE);
 
     this.applyForce(steer);
   }
-
-
-  align(agents) {
-    let desired_velocity = createVector();
-    let total = 0;
-    for (let other of agents) {
-      desired_velocity.add(other.velocity);
-      total++;
-    }
-    if (total > 0)
-      desired_velocity.div(total);
-    desired_velocity.sub(this.velocity).mult(0.02);
-    this.acceleration = desired_velocity;
-  }
-
 
   show() {
     push();
@@ -181,11 +137,38 @@ class Agent {
     pop();
   }
 
-
-  static displayRadius(display)
-  {
-    show = display;
+  drawRadius() {
+    push();
+    stroke(220, 220, 220, 80);
+    noFill();
+    translate(this.position.x, this.position.y);
+    ellipse(0, 0, RADIUS_OF_VIEW);
+    pop();
   }
 
+  drawArrow(base, vec, myColor) {
+    push();
+    stroke(myColor);
+    strokeWeight(3);
+    fill(myColor);
+    translate(base.x, base.y);
+    line(0, 0, vec.x, vec.y);
+    rotate(vec.heading());
+    let arrowSize = 7;
+    translate(vec.mag() - arrowSize, 0);
+    triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
+    pop();
+  }
+
+  static displayRadius(display) {
+    showRadius = display;
+  }
+
+  static setConstants(v, a, r, rad) {
+    MAX_VELOCITY = v;
+    MAX_ATTRACT_FORCE = a;
+    MAX_REPULSE_FORCE = r;
+    RADIUS_OF_VIEW = rad;
+  }
 
 }
