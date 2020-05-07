@@ -1,7 +1,9 @@
 let MAX_VELOCITY = 6.2;
 let MAX_ATTRACT_FORCE = 0.3;
 let MAX_REPULSE_FORCE = 0.38;
+
 let RADIUS_OF_VIEW = 85;
+let RADIUS_OF_NEIGHBOORS = 250;
 
 let DIRECRION_LINE_SIZE = 25;
 
@@ -69,7 +71,17 @@ class Agent {
     let distance = p5.Vector.dist(other.position, this.position);
     if ((distance > 0) && (distance <= RADIUS_OF_VIEW)) {
       if (showRadius)
-        this.drawRadius()
+        this.drawRadius(220, 220, 220, 80)
+      return true;
+    } else
+      return false
+  }
+
+  checkNeighboors(other) {
+    let distance = p5.Vector.dist(other.position, this.position);
+    if ((distance > 0) && (distance <= RADIUS_OF_NEIGHBOORS)) {
+      if (showRadius)
+        this.drawRadius(255, 255, 255, 80)
       return true;
     } else
       return false
@@ -138,9 +150,9 @@ class Agent {
     pop();
   }
 
-  drawRadius() {
+  drawRadius(r, g, b, o) {
     push();
-    stroke(220, 220, 220, 80);
+    stroke(r, g, b, o);
     noFill();
     translate(this.position.x, this.position.y);
     ellipse(0, 0, RADIUS_OF_VIEW);

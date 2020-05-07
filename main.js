@@ -26,7 +26,7 @@ function draw() {
 
   updateConstants();
 
-  background(180, 180, 180);
+  background(50, 50, 50);
 
   drawUI();
 
@@ -39,8 +39,10 @@ function draw() {
     
     for (let j = 0; j < agents.length; j++) {
       if (i != j && agents[i].checkDist(agents[j])) {
-        agents[i].align(agents);
         agents[i].avoid(agents[j]);
+      }
+      if (i != j && agents[i].checkNeighboors(agents[j])) {
+        agents[i].align(agents);
       }
     }
   }
