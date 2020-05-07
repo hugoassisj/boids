@@ -1,39 +1,40 @@
 let MAX_VELOCITY = 5;
-let MAX_ATTRACT_FORCE = 0.1;
+let MAX_ATTRACT_FORCE = 0.255;
+let MAX_REPULSE_FORCE = 0.35 //0.105;
 
-let MAX_REPULSE_FORCE = 0.1;
-
-let LINE_SIZE = 25;
+let DIRECRION_LINE_SIZE = 25;
 
 let AGENT_WIDTH = 30;
 let AGENT_HEIGTH = 30;
 
-let MAX_RGB = 245;
-let MIN_RGB = 100;
+let MAX_RGB_COLOR_RANGE = 245;
+let MIN_RGB_COLOR_RANGE = 100;
 
-let VIEW_RADIUS = 200;
+let RADIUS_OF_VIEW = 200;
+
+let show = false;
 
 class Agent {
   constructor(x, y) {
 
     this.position = createVector(x, y);
+    this.acceleration = createVector(0, 0);
 
-    this.phi = random(0, 2 * PI);
+    this.heading = random(0, 2 * PI);
     //this.heading = radians(theta);
 
-    this.velocity = createVector(cos(this.phi), sin(this.phi));
+    this.velocity = createVector(cos(this.heading), sin(this.heading));
     this.velocity.normalize().mult(MAX_VELOCITY);
-
-    this.acceleration = createVector(0, 0);
 
     this.size = createVector(AGENT_WIDTH, AGENT_HEIGTH);
 
-    this.color = createVector(random(MIN_RGB, MAX_RGB), random(MIN_RGB, MAX_RGB), random(MIN_RGB, MAX_RGB));
+    this.color = createVector(random(MIN_RGB_COLOR_RANGE, MAX_RGB_COLOR_RANGE), random(MIN_RGB_COLOR_RANGE, MAX_RGB_COLOR_RANGE), random(MIN_RGB_COLOR_RANGE, MAX_RGB_COLOR_RANGE));
   }
 
   update() {
     //Update position
     this.position.add(this.velocity);
+    
     //Update velocity
     this.velocity.add(this.acceleration);
     this.velocity.limit(MAX_VELOCITY);
@@ -41,6 +42,14 @@ class Agent {
     this.checkBounds();
     // Reset acceleration each cycle
     this.acceleration.mult(0);
+  }
+
+
+  static setConstants(v, a, r, rad) {
+    MAX_VELOCITY = v;
+    MAX_ATTRACT_FORCE = a;
+    MAX_REPULSE_FORCE = r;
+    RADIUS_OF_VIEW = rad;
   }
 
 
@@ -65,7 +74,7 @@ class Agent {
   }
 
   setAngle(angle) {
-    this.phi = radians(angle);
+    this.heading = radians(angle);
   }
 
 
@@ -81,14 +90,14 @@ class Agent {
 
   checkDist(other) {
     let distance = p5.Vector.dist(other.position, this.position);
-    if ((distance > 0) && (distance <= VIEW_RADIUS)) {
+    if ((distance > 0) && (distance <= RADIUS_OF_VIEW)) {
       stroke(255, 0, 0);
-      //line(other.pos.x, other.pos.y, this.pos.x, this.pos.y);
       push();
-      stroke(1);
+      stroke(220,220,220,80);
       noFill();
       translate(this.position.x, this.position.y);
-      ellipse(0, 0, VIEW_RADIUS);
+      if(show)
+          ellipse(0, 0, RADIUS_OF_VIEW);
 
       pop();
       return true;
@@ -97,40 +106,34 @@ class Agent {
 
   }
 
-  avoid(target) {
-  //   //let desired_1 = createVector(0, 0);
-  //   let desired_2 = createVector(0, 0);
+  avoid(other) {
+    let to_other = createVector();
+    let all = createVector();
+    to_other = p5.Vector.sub(this.position, other.position);
+    to_other.limit(MAX_REPULSE_FORCE);
 
-  //   //desired_1 = p5.Vector.sub(this.velocity, other.velocity);
-  //   //desired_1.normalize().mult(MAX_VELOCITY);
+    all = p5.Vector.add(this.position, to_other)
 
-  //   desired_2 = p5.Vector.sub(this.velocity, other.velocity);
-  //   desired_2.normalize().mult(MAX_VELOCITY)
+    this.applyForce(to_other);
+
+    // this.drawArrow(this.position, to_other, 'red');
+    // this.drawArrow(this.position, this.velocity, 'blue');
 
 
-  //  // let steer_1 = p5.Vector.sub(desired_1, other.velocity);
-  //   //steer_1.limit(MAX_REPULSE_FORCE);
+  }
 
-  //   let steer_2 = p5.Vector.sub(this.velocity,  desired_2);
-  //   steer_2.limit(MAX_REPULSE_FORCE);
-
-  //   //this.applyForce(steer_1);
-  //   other.applyForce(steer_2)
-
-  //   // this.velocity = new_vel_1;
-  //   // this.phi = atan2(this.velocity.y, this.velocity.x);
-
-  //   // other.vel = new_vel_2;
-  //   // other.heading = atan2(other.vel.y, other.vel.x);
-
-  // let desired = p5.Vector.sub(target.position, this.position);
-  // desired.normalize().mult(MAX_VELOCITY);
-
-  // let steer = p5.Vector.sub(desired, this.velocity);
-  // steer.limit(MAX_REPULSE_FORCE);
-
-  // this.applyForce(-steer);
-
+  drawArrow(base, vec, myColor) {
+    push();
+    stroke(myColor);
+    strokeWeight(3);
+    fill(myColor);
+    translate(base.x, base.y);
+    line(0, 0, vec.x, vec.y);
+    rotate(vec.heading());
+    let arrowSize = 7;
+    translate(vec.mag() - arrowSize, 0);
+    triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
+    pop();
   }
 
   seek(target) {
@@ -158,44 +161,31 @@ class Agent {
   }
 
 
-
-
-
   show() {
     push();
 
-    //Triangle
+    //Agent
     stroke(0);
     fill(this.color.x, this.color.y, this.color.z);
     translate(this.position.x, this.position.y);
     rectMode(CENTER);
     rotate(this.velocity.heading());
-    //triangle(-this.size.y, -this.size.x / 2, 0, 0, -this.size.y, this.size.x / 2);                //Origem na Ponta
-    triangle(-this.size.x / 2, -this.size.y / 2, this.size.x / 2, 0, -this.size.x / 2, this.size.y / 2); //Origem no Centro
+    //triangle(-this.size.y, -this.size.x / 2, 0, 0, -this.size.y, this.size.x / 2);                      //Frontal Point as Origin
+    triangle(-this.size.x / 2, -this.size.y / 2, this.size.x / 2, 0, -this.size.x / 2, this.size.y / 2); //Center Point as Origin
 
-    //Orientation Line 
+    //Direction Line 
     stroke(255, 0, 0);
     strokeWeight(2);
-    line(0, 0, LINE_SIZE, 0);
+    line(0, 0, DIRECRION_LINE_SIZE, 0);
 
     pop();
   }
+
+
+  static displayRadius(display)
+  {
+    show = display;
+  }
+
+
 }
-
-// drawHistory() {
-//   for (var i = 0; i < this.history.length; i++) {
-//     var dot = this.history[i];
-//     ellipse(dot.x, dot.y, 8);
-//   }
-// }
-
-// avoid() {
-//   if ((d > 0) && (d < crowdRadius)) {
-//     // Calculate vector pointing away from neighbor
-//     PVector diff = PVector.sub(pos, other.pos);
-//     diff.normalize();
-//     diff.div(d); // Weight by distance
-//     steer.add(diff);
-//     count++; // Keep track of how many
-//   }
-// }
