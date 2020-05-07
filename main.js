@@ -19,6 +19,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight - 4);
   setupUI();
 
+
 }
 
 function draw() {
@@ -59,19 +60,19 @@ function setupUI() {
   RADIUS_OF_VIEW_Checkbox.position(980, windowHeight - 60);
   RADIUS_OF_VIEW_Checkbox.changed(RADIUS_OF_VIEW_Checkbox_Event);
 
-  MAX_VELOCITY_Slider = createSlider(0, 50, 12, 0.05);
+  MAX_VELOCITY_Slider = createSlider(0, 50, 6.2, 0.05);
   MAX_VELOCITY_Slider.style('width', '200px');
   MAX_VELOCITY_Slider.position(20, windowHeight - 60);
 
-  MAX_ATTRACT_FORCE_Slider = createSlider(0, 5, 0.75, 0.01);
+  MAX_ATTRACT_FORCE_Slider = createSlider(0, 5, 0.3, 0.01);
   MAX_ATTRACT_FORCE_Slider.style('width', '200px');
   MAX_ATTRACT_FORCE_Slider.position(260, windowHeight - 60);
 
-  MAX_REPULSE_FORCE_Slider = createSlider(0, 5, 0.85, 0.01);
+  MAX_REPULSE_FORCE_Slider = createSlider(0, 5, 0.38, 0.01);
   MAX_REPULSE_FORCE_Slider.style('width', '200px');
   MAX_REPULSE_FORCE_Slider.position(500, windowHeight - 60);
 
-  RADIUS_OF_VIEW_Slider = createSlider(0, 250, 200, 5);
+  RADIUS_OF_VIEW_Slider = createSlider(0, 250, 85, 2);
   RADIUS_OF_VIEW_Slider.style('width', '200px');
   RADIUS_OF_VIEW_Slider.position(740, windowHeight - 60);
 

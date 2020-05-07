@@ -1,7 +1,7 @@
-let MAX_VELOCITY = 14.5;
+let MAX_VELOCITY = 6.2;
 let MAX_ATTRACT_FORCE = 0.3;
-let MAX_REPULSE_FORCE = 0.01;
-let RADIUS_OF_VIEW = 115;
+let MAX_REPULSE_FORCE = 0.38;
+let RADIUS_OF_VIEW = 85;
 
 let DIRECRION_LINE_SIZE = 25;
 
@@ -36,7 +36,8 @@ class Agent {
 
     //Update velocity
     this.velocity.add(this.acceleration);
-    this.velocity.limit(MAX_VELOCITY);
+    //this.velocity.limit(MAX_VELOCITY);
+    this.velocity.normalize().mult(MAX_VELOCITY);
 
     //Canvas limits
     this.checkBounds();
