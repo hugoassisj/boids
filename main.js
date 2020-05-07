@@ -102,7 +102,7 @@ function setupUI() {
   repulsionRadiusSlider.style('width', str(sliderWidth) + 'px')
   repulsionRadiusSlider.position(firstSliderX + 4 * (sliderWidth + sliderSpacing), sliderY)
 
-  showRadiusCheckbox = createCheckbox('Show Radius', false)
+  showRadiusCheckbox = createCheckbox('Display Radius', false)
   showRadiusCheckbox.position(firstSliderX + 5 * (sliderWidth + sliderSpacing), sliderY)
   showRadiusCheckbox.changed(showRadiusCheckboxEvent)
 
@@ -128,9 +128,10 @@ function drawUI() {
   noStroke()
   text('Velocity: ' + velocitySliderValue, firstSliderX, windowHeight - 70)
   text('Attraction Force: ' + attractionForceSliderValue, firstSliderX + sliderWidth + sliderSpacing, textY)
-  text('Repulsion Force: ' + repulsionForceSliderValue, firstSliderX + 2 * (sliderWidth + sliderSpacing), textY)
-  text('Repulsion Radius: ' + repulsionRadiusSliderValue, firstSliderX + 3 * (sliderWidth + sliderSpacing), textY)
-  text('Attraction Radius: ' + attractionRadiusSliderValue, firstSliderX + 4 * (sliderWidth + sliderSpacing), textY)
+  text('Attraction Radius: ' + attractionRadiusSliderValue, firstSliderX + 2 * (sliderWidth + sliderSpacing), textY)
+  text('Repulsion Force: ' + repulsionForceSliderValue, firstSliderX + 3 * (sliderWidth + sliderSpacing), textY)
+  text('Repulsion Radius: ' + repulsionRadiusSliderValue, firstSliderX + 4 * (sliderWidth + sliderSpacing), textY)
+
 }
 
 //Handle checkbox events ----------------------------------------------------------------------------------------

@@ -106,7 +106,7 @@ class Agent {
 
     this.applyForce(steer)
 
-    this.drawArrow(this.position, other.position, 'red')
+    this.drawArrow(this.velocity, other.velocity, 'red')
   }
 
   align(agents) {
@@ -156,7 +156,6 @@ class Agent {
     translate(this.position.x, this.position.y)
     rectMode(CENTER)
     rotate(this.velocity.heading())
-    //triangle(-this.size.y, -this.size.x / 2, 0, 0, -this.size.y, this.size.x / 2)                      //Frontal Point as Origin
     triangle(-this.size.x / 2, -this.size.y / 2, this.size.x / 2, 0, -this.size.x / 2, this.size.y / 2) //Center Point as Origin
 
     //Direction Line 
@@ -200,7 +199,6 @@ class Agent {
     attractionRadius = attractionRadiusSliderValue
     maxRepulsionForce = repulsionForceSliderValue
     repulsionRadius = repulsionRadiusSliderValue
-
   }
 
 }
