@@ -1,5 +1,5 @@
-let g = 10
-let obstacleRadius = 200
+let g = 15
+let obstacleRadius = 100
 
 class Obstacle {
     constructor(x, y) {
@@ -24,7 +24,7 @@ class Obstacle {
 
     rep(other) {
 
-        let desiredVelocity = p5.Vector.sub(this.position, other.position)
+        let desiredVelocity = p5.Vector.sub(other.position, this.position)
         //desiredVelocity.normalize().mult(maxVelocity)
     
         let steer = p5.Vector.add(desiredVelocity, this.velocity)

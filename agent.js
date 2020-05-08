@@ -50,7 +50,7 @@ class Agent {
   }
 
   applyForce(force) {
-    this.drawArrow(this.position, force, 'white')
+    //this.drawArrow(this.position, force, 'white')
     this.acceleration.add(force)
 
   }
@@ -109,7 +109,7 @@ class Agent {
 
     this.applyForce(steer)
 
-    this.drawArrow(this.position, steer.mult(100), 'white')
+    //this.drawArrow(this.position, steer.mult(100), 'white')
   }
 
   align(agents) {

@@ -1,4 +1,4 @@
-let numberOfAgents = 1
+let numberOfAgents = 10
 let numberOfObstacles = 1
 
 let agents = []
@@ -46,50 +46,41 @@ function setup() {
 }
 
 // Draw Function ------------------------------------------------------------------------------------------------
-function draw() 
-{
-  console.log(mouseX)
+function draw() {
   updateConstants()
 
   background(50, 50, 50)
 
   drawUI()
 
-  for (let i = 0; i < agents.length; i++) 
-  {
-    //agents[i].attract(mouse)
+  for (let i = 0; i < agents.length; i++) {
+    //agents[i].attract(createVector(mouseX,mouseY))
     agents[i].update()
     agents[i].show()
 
-    for (let j = 0; j < agents.length; j++) 
-    {
-      if (i != j && agents[i].checkRepulsionDistance(agents[j])) 
-      {
-        //agents[i].avoid(agents[j])
+    for (let j = 0; j < agents.length; j++) {
+      if (i != j && agents[i].checkRepulsionDistance(agents[j])) {
+        agents[i].avoid(agents[j])
       }
-      if (i != j && agents[i].checkAttractionDistance(agents[j])) 
-      {
+      if (i != j && agents[i].checkAttractionDistance(agents[j])) {
         //agents[i].align(agents)
         //agents[i].gather(agents)
 
       }
     }
 
-    for (let j = 0; j < obstacles.length; j++) 
-    {
-      if (obstacles[j].checkRepulsionDistance(agents[i])) 
-      {
-        obstacles[j].rep(agents[i])      
+    for (let j = 0; j < obstacles.length; j++) {
+      if (obstacles[j].checkRepulsionDistance(agents[i])) {
+        obstacles[j].rep(agents[i])
       }
     }
 
   }
 
-  for (let i = 0; i < obstacles.length; i++) 
-  {
+  for (let i = 0; i < obstacles.length; i++) {
     obstacles[i].show()
   }
-  
+
 }
 
 // Handles mouse click ---------------------------------------------------------------------------------
@@ -98,8 +89,8 @@ function mousePressed(event) {
     switch (tool) {
       case 'agent':
         for (let i = 0; i < numberOfAgents; i++) {
-          let a = new Agent(mouseX, mouseY)
-          //let a = new Agent(random(0, windowWidth), random(0, windowHeight))
+          //let a = new Agent(mouseX, mouseY)
+          let a = new Agent(random(0, windowWidth), random(0, windowHeight))
           agents.push(a)
         }
         break
@@ -111,6 +102,10 @@ function mousePressed(event) {
           obstacles.push(o)
         }
         break
+
+        case 'walls':
+            drawWalls()
+          break
 
       default:
         tool = 'agent'
@@ -191,5 +186,23 @@ function keyPressed() {
     tool = 'agent'
   } else if (key == 'o') {
     tool = 'obstacle'
+  } else if (key == 's') {
+    tool = 'walls'
+  }
+}
+
+function drawWalls() {
+  let spacing = 31
+  let translate = -40
+  for (let x = 0; x < windowWidth; x += spacing) {
+    obstacles.push(new Obstacle(x, translate))
+    obstacles.push(new Obstacle(x, windowHeight - translate))
+
+  }
+
+  for (let y = spacing; y < windowHeight - spacing; y += spacing) {
+    obstacles.push(new Obstacle(translate, y))
+    obstacles.push(new Obstacle(windowWidth - translate, y))
+
   }
 }
