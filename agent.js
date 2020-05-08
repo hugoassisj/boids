@@ -15,8 +15,10 @@ let minRGB = 100
 
 let showRadius = false
 
-class Agent {
-  constructor(x, y) {
+class Agent 
+{
+  constructor(x, y)
+  {
 
     this.position = createVector(x, y)
 
@@ -33,7 +35,8 @@ class Agent {
     this.color = createVector(random(minRGB, maxRGB), random(minRGB, maxRGB), random(minRGB, maxRGB))
   }
 
-  update() {
+  update()
+  {
     //Update position
     this.position.add(this.velocity)
 
@@ -49,30 +52,38 @@ class Agent {
     this.acceleration.mult(0)
   }
 
-  applyForce(force) {
+  applyForce(force)
+  {
     //this.drawArrow(this.position, force, 'white')
     this.acceleration.add(force)
 
   }
 
-  checkBounds() {
-    if (this.position.y < -this.size.x / 2) {
+  checkBounds()
+  {
+    if (this.position.y < - this.size.x / 2)
+    {
       this.position.y = windowHeight + 40
     }
-    if (this.position.x < -25) {
+    if (this.position.x < -25)
+    {
       this.position.x = windowWidth
     }
-    if (this.position.x > windowWidth) {
+    if (this.position.x > windowWidth)
+    {
       this.position.x = 0
     }
-    if (this.position.y > windowHeight + 40) {
+    if (this.position.y > windowHeight + 40)
+    {
       this.position.y = 0
     }
   }
 
-  checkRepulsionDistance(other) {
+  checkRepulsionDistance(other)
+  {
     let distance = p5.Vector.dist(this.position, other.position)
-    if ((distance > 0) && (distance <= repulsionRadius)) {
+    if ((distance > 0) && (distance <= repulsionRadius))
+    {
       if (showRadius)
         this.drawRadius(220, 220, 220, 50, repulsionRadius)
       return true
@@ -80,9 +91,11 @@ class Agent {
       return false
   }
 
-  checkAttractionDistance(other) {
+  checkAttractionDistance(other)
+  {
     let distance = p5.Vector.dist(this.position, other.position)
-    if ((distance > 0) && (distance <= attractionRadius)) {
+    if ((distance > 0) && (distance <= attractionRadius))
+    {
       if (showRadius)
         this.drawRadius(255, 0, 0, 50, attractionRadius)
       return true
@@ -90,7 +103,8 @@ class Agent {
       return false
   }
 
-  attract(targetPosition) {
+  attract(targetPosition)
+  {
     let desiredVelocity = p5.Vector.sub(targetPosition, this.position)
     desiredVelocity.normalize().mult(maxVelocity)
 
@@ -100,7 +114,8 @@ class Agent {
     this.applyForce(steer)
   }
 
-  avoid(other) {
+  avoid(other)
+  {
     let desiredVelocity = p5.Vector.sub(this.position, other.position)
     desiredVelocity.normalize().mult(maxVelocity)
 
@@ -112,12 +127,14 @@ class Agent {
     //this.drawArrow(this.position, steer.mult(100), 'white')
   }
 
-  align(agents) {
+  align(agents)
+  {
     let desiredVelocity = createVector()
     let total = 0
-    for (let other of agents) {
+    for (let other of agents)
+    {
       desiredVelocity.add(other.velocity)
-      total++;
+      total++
     }
     if (total > 0)
       desiredVelocity.div(total)
@@ -131,12 +148,14 @@ class Agent {
     this.applyForce(steer)
   }
 
-  gather(agents) {
+  gather(agents)
+  {
     let desiredPosition = createVector()
     let total = 0
-    for (let other of agents) {
+    for (let other of agents)
+    {
       desiredPosition.add(other.position)
-      total++;
+      total++
     }
     if (total > 0)
       desiredPosition.div(total)
@@ -150,7 +169,8 @@ class Agent {
     this.applyForce(vel)
   }
 
-  show() {
+  show()
+  {
     push()
 
     //Agent
@@ -159,7 +179,7 @@ class Agent {
     translate(this.position.x, this.position.y)
     rectMode(CENTER)
     rotate(this.velocity.heading())
-    triangle(-this.size.x / 2, -this.size.y / 2, this.size.x / 2, 0, -this.size.x / 2, this.size.y / 2) //Center Point as Origin
+    triangle(- this.size.x / 2, - this.size.y / 2, this.size.x / 2, 0, - this.size.x / 2, this.size.y / 2)//Center Point as Origin
 
     //Direction Line 
     stroke(255, 0, 0)
@@ -169,7 +189,8 @@ class Agent {
     pop()
   }
 
-  drawRadius(r, g, b, o, rad) {
+  drawRadius(r, g, b, o, rad)
+  {
     push()
     stroke(r, g, b, o)
     noFill()
@@ -178,7 +199,8 @@ class Agent {
     pop()
   }
 
-  drawArrow(base, vec, myColor) {
+  drawArrow(base, vec, myColor)
+  {
     push()
     stroke(myColor)
     //strokeWeight(3)
@@ -188,15 +210,17 @@ class Agent {
     rotate(vec.heading())
     let arrowSize = 8
     translate(vec.mag() - arrowSize, 0)
-    triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0)
+    triangle(0, arrowSize / 2, 0, - arrowSize / 2, arrowSize, 0)
     pop()
   }
 
-  static displayRadius(display) {
+  static displayRadius(display)
+  {
     showRadius = display
   }
 
-  static setConstants(velocitySliderValue, attractionForceSliderValue, attractionRadiusSliderValue, repulsionForceSliderValue, repulsionRadiusSliderValue) {
+  static setConstants(velocitySliderValue, attractionForceSliderValue, attractionRadiusSliderValue, repulsionForceSliderValue, repulsionRadiusSliderValue)
+  {
     maxVelocity = velocitySliderValue
     maxAttractionForce = attractionForceSliderValue
     attractionRadius = attractionRadiusSliderValue
