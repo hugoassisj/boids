@@ -1,5 +1,10 @@
 let numberOfAgents = 1
+let numberOfObstacles = 1
+
 let agents = []
+let obstacles = []
+
+let tool = 'agent'
 
 // UI Settings---------------------------------------------------------------------------------------------------
 // Slider Objects
@@ -41,40 +46,77 @@ function setup() {
 }
 
 // Draw Function ------------------------------------------------------------------------------------------------
-function draw() {
-
+function draw() 
+{
+  console.log(mouseX)
   updateConstants()
 
   background(50, 50, 50)
 
   drawUI()
 
-  for (let i = 0; i < agents.length; i++) {
+  for (let i = 0; i < agents.length; i++) 
+  {
     //agents[i].attract(mouse)
     agents[i].update()
     agents[i].show()
 
-    for (let j = 0; j < agents.length; j++) {
-      if (i != j && agents[i].checkRepulsionDistance(agents[j])) {
-        agents[i].avoid(agents[j])
+    for (let j = 0; j < agents.length; j++) 
+    {
+      if (i != j && agents[i].checkRepulsionDistance(agents[j])) 
+      {
+        //agents[i].avoid(agents[j])
       }
-      if (i != j && agents[i].checkAttractionDistance(agents[j])) {
-        agents[i].align(agents)
+      if (i != j && agents[i].checkAttractionDistance(agents[j])) 
+      {
+        //agents[i].align(agents)
         //agents[i].gather(agents)
 
       }
     }
+
+    for (let j = 0; j < obstacles.length; j++) 
+    {
+      if (obstacles[j].checkRepulsionDistance(agents[i])) 
+      {
+        obstacles[j].rep(agents[i])      
+      }
+    }
+
   }
+
+  for (let i = 0; i < obstacles.length; i++) 
+  {
+    obstacles[i].show()
+  }
+  
 }
 
-// Create agents on mouse click ---------------------------------------------------------------------------------
+// Handles mouse click ---------------------------------------------------------------------------------
 function mousePressed(event) {
   if (mouseY < windowHeight - 60) {
-    for (let i = 0; i < numberOfAgents; i++) {
-      //let a = new Agent(mouseX, mouseY)
-      let a = new Agent(random(0, windowWidth), random(0, windowHeight))
-      agents.push(a)
+    switch (tool) {
+      case 'agent':
+        for (let i = 0; i < numberOfAgents; i++) {
+          let a = new Agent(mouseX, mouseY)
+          //let a = new Agent(random(0, windowWidth), random(0, windowHeight))
+          agents.push(a)
+        }
+        break
+
+      case 'obstacle':
+        for (let i = 0; i < numberOfObstacles; i++) {
+          let o = new Obstacle(mouseX, mouseY)
+          //let o = new Obstacle(random(0, windowWidth), random(0, windowHeight))
+          obstacles.push(o)
+        }
+        break
+
+      default:
+        tool = 'agent'
+        break
     }
+
   }
 }
 
@@ -140,5 +182,14 @@ function showRadiusCheckboxEvent() {
     Agent.displayRadius(true)
   } else {
     Agent.displayRadius(false)
+  }
+}
+
+//Handle keypress events ----------------------------------------------------------------------------------------
+function keyPressed() {
+  if (key == 'a') {
+    tool = 'agent'
+  } else if (key == 'o') {
+    tool = 'obstacle'
   }
 }

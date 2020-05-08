@@ -19,10 +19,11 @@ class Agent {
   constructor(x, y) {
 
     this.position = createVector(x, y)
+
     this.acceleration = createVector(0, 0)
 
-    this.heading = random(0, 2 * PI)
-    //this.heading = radians(theta)
+    //this.heading = random(0, 2 * PI)
+    this.heading = radians(95)
 
     this.velocity = createVector(cos(this.heading), sin(this.heading))
     this.velocity.normalize().mult(maxVelocity)
@@ -49,7 +50,9 @@ class Agent {
   }
 
   applyForce(force) {
+    this.drawArrow(this.position, force, 'white')
     this.acceleration.add(force)
+
   }
 
   checkBounds() {
@@ -106,7 +109,7 @@ class Agent {
 
     this.applyForce(steer)
 
-    //this.drawArrow(this.position, steer.mult(100), 'white')
+    this.drawArrow(this.position, steer.mult(100), 'white')
   }
 
   align(agents) {
