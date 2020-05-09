@@ -1,10 +1,12 @@
 let globalGravity = 15
 
-let numberOfAgents = 10
+let numberOfAgents = 3
 let numberOfObstacles = 1
+let numberOfGoals = 1
 
 let agents = []
 let obstacles = []
+let goals = []
 let wall = []
 
 let tool = 'agent'
@@ -33,8 +35,8 @@ let attractionRadiusSliderValue = 0
 let repulsionForceSliderValue = 0
 let repulsionRadiusSliderValue = 0
 
-let sliderWidth = 200
-let sliderSpacing = 40
+let sliderWidth = 120
+let sliderSpacing = 15
 let firstSliderX = 20
 let sliderY
 let textY
@@ -47,12 +49,13 @@ function setup()
   canvasX = windowWidth
   canvasY = windowHeight - 4
 
-  createCanvas(canvasX, canvasY)
-
   sliderY = windowHeight - 60
   textY = sliderY - 10
 
+  createCanvas(canvasX, canvasY)
+
   setupUI()
+
   createWall()
 }
 
@@ -65,12 +68,16 @@ function draw()
 
   drawUI()
 
+  //Check Interactions
   for (let i = 0; i < agents.length; i++)
   {
+
+
     //agents[i].attract(createVector(mouseX,mouseY))
     agents[i].update()
     agents[i].show()
 
+    //Between Agents and Agents
     for (let j = 0; j < agents.length; j++)
     {
       if (i != j && agents[i].checkRepulsionDistance(agents[j]))
@@ -81,40 +88,64 @@ function draw()
       {
         //agents[i].align(agents)
         //agents[i].gather(agents)
-
       }
-
     }
 
-
+    //Between Agents and Obstacles
     for (let j = 0; j < obstacles.length; j++)
     {
       if (obstacles[j].insideOrbit(agents[i]))
       {
-        obstacles[j].repulse(agents[i])
+        obstacles[j].act(agents[i])
       }
     }
 
+    //Between Agents and Walls
     for (let j = 0; j < wall.length; j++)
     {
       if (wall[j].insideOrbit(agents[i]))
       {
-        wall[j].repulse(agents[i])
+        wall[j].act(agents[i])
       }
     }
 
+    //Between Agents and Goals
+    for (let j = 0; j < goals.length; j++)
+    {
+      if (goals[j].insideOrbit(agents[i]))
+      {
+        goals[j].act(agents[i])
+
+        let dist = p5.Vector.dist(agents[i].position, goals[j].position)
+        if ((dist > 0) && (dist <= 5))
+        {
+          agents.splice(i,1)
+        }
+      }
+    }
 
   }
 
+  //Update and Draw
   for (let i = 0; i < obstacles.length; i++)
   {
     obstacles[i].show()
   }
 
+  //Update and Draw
   for (let i = 0; i < wall.length; i++)
   {
     wall[i].show()
   }
+
+  //Update and Draw
+  for (let i = 0; i < goals.length; i++)
+  {
+    goals[i].show()
+  }
+
+
+
 
 }
 
@@ -128,16 +159,24 @@ function mousePressed(event)
       case 'agent':
         for (let i = 0; i < numberOfAgents; i++)
         {
-          agents.push(new Agent(random(0, windowWidth), random(0, windowHeight)))
-          //agents.push(new Agent(mouseX, mouseY))
+          //agents.push(new Agent(random(0, windowWidth), random(0, windowHeight)))
+          agents.push(new Agent(mouseX, mouseY))
         }
         break
 
       case 'obstacle':
         for (let i = 0; i < numberOfObstacles; i++)
         {
-          obstacles.push(new Obstacle(mouseX, mouseY))
-          //obstacles.push(new Obstacle(random(0, windowWidth), random(0, windowHeight)))
+          obstacles.push(new Force(mouseX, mouseY, 30, 200, 'repel', 15))
+          //obstacles.push(new Obstacle(random(0, windowWidth), random(0, windowHeight), 30, 100, 'repel', 30))
+        }
+        break
+
+      case 'goal':
+        for (let i = 0; i < numberOfGoals; i++)
+        {
+          goals.push(new Force(mouseX, mouseY, 30, 1200, 'attract', 50))
+          //goals.push(new Obstacle(random(0, windowWidth), random(0, windowHeight) 30, 100, 'attract', 50))
         }
         break
 
@@ -155,16 +194,19 @@ function keyPressed()
   if (key == 'a')
   {
     tool = 'agent'
-  } else if (key == 'o')
+  } else if (key == 'q')
   {
     tool = 'obstacle'
+  } else if (key == 'w')
+  {
+    tool = 'goal'
   }
 }
 
 // Configure the position and apeareance of UI Elements ---------------------------------------------------------
 function setupUI()
 {
-  textSize(20)
+  textSize(12)
 
   velocitySlider = createSlider(0, 50, 3.5, 0.05)
   velocitySlider.style('width', str(sliderWidth) + 'px')
@@ -238,17 +280,21 @@ function createWall()
   let spacing = 31
   let translate = -8
 
+  let wallSize = 30
+  let wallRadius = 100
+  let wallForce = 15
+
   for (let x = 0; x < windowWidth; x += spacing)
   {
-    wall.push(new Obstacle(x, translate))
-    wall.push(new Obstacle(x, canvasY - translate))
+    wall.push(new Force(x, translate, wallSize, wallRadius, 'repel', wallForce))
+    wall.push(new Force(x, canvasY - translate, wallSize, wallRadius, 'repel', wallForce))
 
   }
 
   for (let y = spacing; y < windowHeight - spacing; y += spacing)
   {
-    wall.push(new Obstacle(translate, y))
-    wall.push(new Obstacle(canvasX - translate, y))
+    wall.push(new Force(translate, y, wallSize, wallRadius, 'repel', wallForce))
+    wall.push(new Force(canvasX - translate, y, wallSize, wallRadius, 'repel', wallForce))
 
   }
 }

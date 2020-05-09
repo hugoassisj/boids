@@ -1,21 +1,35 @@
-let g = 15
-
-class Obstacle 
+class Force 
 {
-    constructor(x, y)
+    constructor(x, y, size, radius, type, gravity)
     {
-        this.size = 30
-        this.radius = 100
+        this.color = ''
+        this.size = size
+        this.radius = radius
         this.position = createVector(x, y)
-        this.color = 'red'
+        this.type = type
+        this.gravity = gravity
+
+        this.action = ''
+
+        if (this.type === 'attract')
+        {
+            this.color == 'grey'
+            this.action = 'attract'
+        }
+        else if (this.type === 'repel')
+        {
+            this.color = 'red'
+            this.action = 'repel'
+        }
+
 
     }
 
     insideOrbit(other)
     {
-        
+
         let distance = p5.Vector.dist(this.position, other.position)
-        
+
         if ((distance > 0) && (distance <= this.radius))
         {
             //this.drawArrow(this.position, p5.Vector.sub(other.position, this.position), 'white')
@@ -25,29 +39,30 @@ class Obstacle
 
     }
 
-    repulse(other)
+    act(other, action)
     {
-        let desiredVelocity = p5.Vector.sub(other.position, this.position)
-        //desiredVelocity.normalize().mult(maxVelocity)
+        let desiredDirection
+        let force
 
-        let steer = p5.Vector.add(desiredVelocity, this.velocity)
-        steer.limit(g / (p5.Vector.mag(desiredVelocity) ^ 2))
+        if (this.action === 'repel')
+        {
+            desiredDirection = p5.Vector.sub(other.position, this.position)
+            //desiredVelocity.normalize().mult(maxVelocity)
 
-        other.applyForce(steer)
+            force = p5.Vector.add(desiredDirection, this.velocity)
 
-        //this.drawArrow(this.position, steer.mult(500), 'white')
-    }
-
+        }
+        else if (this.action === 'attract')
+        {
+            desiredDirection = p5.Vector.sub(this.position, other.position)
+            //desiredVelocity.normalize().mult(maxVelocity)
     
-    attract(other)
-    {
-        let desiredVelocity = p5.Vector.sub(this.position, other.position)
-        //desiredVelocity.normalize().mult(maxVelocity)
+            force = p5.Vector.add(desiredDirection, this.velocity)
 
-        let steer = p5.Vector.add(desiredVelocity, this.velocity)
-        steer.limit(g / (p5.Vector.mag(desiredVelocity) ^ 2))
+        }
+        force.limit(this.gravity / (p5.Vector.mag(desiredDirection) ^ 2))
 
-        other.applyForce(steer)
+        other.applyForce(force)
 
         //this.drawArrow(this.position, steer.mult(500), 'white')
     }
@@ -61,7 +76,7 @@ class Obstacle
         rectMode(CENTER)
         ellipse(0, 0, this.size);
         pop()
-        this.drawRadius(0, 220, 0, 50, this.radius)
+        //this.drawRadius(0, 220, 0, 50, this.radius)
 
     }
 

@@ -50,6 +50,7 @@ class Agent
 
     //Reset acceleration each cycle
     this.acceleration.mult(0)
+
   }
 
   applyForce(force)
