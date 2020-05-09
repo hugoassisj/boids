@@ -24,8 +24,8 @@ class Agent
 
     this.acceleration = createVector(0, 0)
 
-    //this.heading = random(0, 2 * PI)
-    this.heading = radians(95)
+    this.heading = random(0, 2 * PI)
+    //this.heading = radians(95)
 
     this.velocity = createVector(cos(this.heading), sin(this.heading))
     this.velocity.normalize().mult(maxVelocity)
@@ -86,7 +86,7 @@ class Agent
     if ((distance > 0) && (distance <= repulsionRadius))
     {
       if (showRadius)
-        this.drawRadius(220, 220, 220, 50, repulsionRadius)
+        this.drawRadius(255, 0, 0, 50, repulsionRadius)
       return true
     } else
       return false
@@ -98,7 +98,7 @@ class Agent
     if ((distance > 0) && (distance <= attractionRadius))
     {
       if (showRadius)
-        this.drawRadius(255, 0, 0, 50, attractionRadius)
+        this.drawRadius(0, 255, 0, 50, attractionRadius)
       return true
     } else
       return false
@@ -106,24 +106,24 @@ class Agent
 
   attract(targetPosition)
   {
-    let desiredVelocity = p5.Vector.sub(targetPosition, this.position)
-    desiredVelocity.normalize().mult(maxVelocity)
+    let desiredDirection = p5.Vector.sub(targetPosition, this.position)
+    desiredDirection.normalize().mult(maxVelocity)
 
-    let steer = p5.Vector.sub(desiredVelocity, this.velocity)
-    steer.limit(maxAttractionForce)
+    let force = p5.Vector.sub(desiredDirection, this.velocity)
+    force.limit(maxAttractionForce)
 
-    this.applyForce(steer)
+    this.applyForce(force)
   }
 
   avoid(other)
   {
-    let desiredVelocity = p5.Vector.sub(this.position, other.position)
-    desiredVelocity.normalize().mult(maxVelocity)
+    let desiredDirection = p5.Vector.sub(this.position, other.position)
+    desiredDirection.normalize().mult(maxVelocity)
 
-    let steer = p5.Vector.add(desiredVelocity, this.velocity)
-    steer.limit(maxRepulsionForce)
+    let force = p5.Vector.add(desiredDirection, this.velocity)
+    force.limit(maxRepulsionForce/ (p5.Vector.mag(desiredDirection) ^ 2))
 
-    this.applyForce(steer)
+    this.applyForce(force)
 
     //this.drawArrow(this.position, steer.mult(100), 'white')
   }

@@ -56,7 +56,7 @@ class Force
         {
             desiredDirection = p5.Vector.sub(this.position, other.position)
             //desiredVelocity.normalize().mult(maxVelocity)
-    
+
             force = p5.Vector.add(desiredDirection, this.velocity)
 
         }
@@ -76,7 +76,9 @@ class Force
         rectMode(CENTER)
         ellipse(0, 0, this.size);
         pop()
-        //this.drawRadius(0, 220, 0, 50, this.radius)
+        if (showRadius)
+            this.drawRadius(0, 220, 0, 50, this.radius)
+        
 
     }
 
@@ -104,6 +106,11 @@ class Force
         translate(vec.mag() - arrowSize, 0)
         triangle(0, arrowSize / 2, 0, - arrowSize / 2, arrowSize, 0)
         pop()
+    }
+
+    static displayRadius(display)
+    {
+      showRadius = display
     }
 
 }

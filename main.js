@@ -1,6 +1,6 @@
 let globalGravity = 15
 
-let numberOfAgents = 3
+let numberOfAgents = 5
 let numberOfObstacles = 1
 let numberOfGoals = 1
 
@@ -68,6 +68,24 @@ function draw()
 
   drawUI()
 
+  //Update and Draw
+  for (let i = 0; i < obstacles.length; i++)
+  {
+    obstacles[i].show()
+  }
+
+  //Update and Draw
+  for (let i = 0; i < wall.length; i++)
+  {
+    wall[i].show()
+  }
+
+  //Update and Draw
+  for (let i = 0; i < goals.length; i++)
+  {
+    goals[i].show()
+  }
+
   //Check Interactions
   for (let i = 0; i < agents.length; i++)
   {
@@ -86,7 +104,7 @@ function draw()
       }
       if (i != j && agents[i].checkAttractionDistance(agents[j]))
       {
-        //agents[i].align(agents)
+        agents[i].align(agents)
         //agents[i].gather(agents)
       }
     }
@@ -119,30 +137,14 @@ function draw()
         let dist = p5.Vector.dist(agents[i].position, goals[j].position)
         if ((dist > 0) && (dist <= 5))
         {
-          agents.splice(i,1)
+          agents.splice(i, 1)
+          break
         }
       }
     }
 
   }
 
-  //Update and Draw
-  for (let i = 0; i < obstacles.length; i++)
-  {
-    obstacles[i].show()
-  }
-
-  //Update and Draw
-  for (let i = 0; i < wall.length; i++)
-  {
-    wall[i].show()
-  }
-
-  //Update and Draw
-  for (let i = 0; i < goals.length; i++)
-  {
-    goals[i].show()
-  }
 
 
 
@@ -179,7 +181,6 @@ function mousePressed(event)
           //goals.push(new Obstacle(random(0, windowWidth), random(0, windowHeight) 30, 100, 'attract', 50))
         }
         break
-
       default:
         tool = 'agent'
         break
@@ -212,19 +213,19 @@ function setupUI()
   velocitySlider.style('width', str(sliderWidth) + 'px')
   velocitySlider.position(firstSliderX, sliderY)
 
-  attractionForceSlider = createSlider(0, 5, 0.09, 0.01)
+  attractionForceSlider = createSlider(0, 5, 0.3, 0.01)
   attractionForceSlider.style('width', str(sliderWidth) + 'px')
   attractionForceSlider.position(firstSliderX + sliderWidth + sliderSpacing, sliderY)
 
-  attractionRadiusSlider = createSlider(0, 350, 150, 2)
+  attractionRadiusSlider = createSlider(0, 350, 80, 2)
   attractionRadiusSlider.style('width', str(sliderWidth) + 'px')
   attractionRadiusSlider.position(firstSliderX + 2 * (sliderWidth + sliderSpacing), sliderY)
 
-  repulsionForceSlider = createSlider(0, 5, 0.38, 0.01)
+  repulsionForceSlider = createSlider(0, 5, 0.3, 0.01)
   repulsionForceSlider.style('width', str(sliderWidth) + 'px')
   repulsionForceSlider.position(firstSliderX + 3 * (sliderWidth + sliderSpacing), sliderY)
 
-  repulsionRadiusSlider = createSlider(0, 250, 56, 2)
+  repulsionRadiusSlider = createSlider(0, 250, 125, 2)
   repulsionRadiusSlider.style('width', str(sliderWidth) + 'px')
   repulsionRadiusSlider.position(firstSliderX + 4 * (sliderWidth + sliderSpacing), sliderY)
 
