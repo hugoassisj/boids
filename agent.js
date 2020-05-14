@@ -1,11 +1,15 @@
-let maxVelocity = 6.2
-let maxAttractionForce = 0.3
-let maxRepulsionForce = 0.38
+let maxVelocity = 0
+let maxForce = 0
 
-let repulsionRadius = 85
-let attractionRadius = 250
+let maxAlign = 0
+let maxCohesion = 0
+let maxSeparation = 0
 
-let DIRECRION_LINE_SIZE = 15
+let radiusA = 0
+let radiusS = 0
+let radiusC = 0
+
+let DIRECTION_LINE_SIZE = 15
 
 let agentWidth = 30
 let agentHeigth = 30
@@ -35,26 +39,41 @@ class Agent
     this.color = createVector(random(minRGB, maxRGB), random(minRGB, maxRGB), random(minRGB, maxRGB))
   }
 
+  behave(agents)
+  {
+    let alignmentForce = this.alignment(agents)
+    let cohesionForce = this.cohesion(agents)
+    let separationForce = this.separation(agents)
+
+    alignmentForce.mult(maxAlign)
+    cohesionForce.mult(maxCohesion)
+    separationForce.mult(maxSeparation)
+
+    this.acceleration.add(alignmentForce)
+    this.acceleration.add(cohesionForce)
+    this.acceleration.add(separationForce)
+
+    //this.drawArrow(this.position, this.acceleration.mult(100), 'red')
+
+  }
+
   update()
   {
     //Update position
     this.position.add(this.velocity)
-
     //Update velocity
     this.velocity.add(this.acceleration)
-    //this.velocity.limit(MAX_VELOCITY)
-    this.velocity.normalize().mult(maxVelocity)
-
+    this.velocity.setMag(maxVelocity)
     //Canvas limits
     this.checkBounds()
 
     //Reset acceleration each cycle
     this.acceleration.mult(0)
-
   }
 
   applyForce(force)
   {
+    this.acceleration.mult(0)
     //this.drawArrow(this.position, force, 'white')
     this.acceleration.add(force)
 
@@ -80,88 +99,52 @@ class Agent
     }
   }
 
-  insideRepulsionRadius(other)
+  insideRadius(other, rad)
   {
     let distance = p5.Vector.dist(this.position, other.position)
-    if ((distance > 0) && (distance <= repulsionRadius))
+    if ((distance > 0) && (distance <= rad))
     {
       if (showRadius)
-        this.drawRadius(255, 0, 0, 50, repulsionRadius)
+        this.drawRadius(0, 255, 0, 80, rad)
       return true
     } else
       return false
   }
 
-  insideAttractionRadius(other)
-  {
-    let distance = p5.Vector.dist(this.position, other.position)
-    if ((distance > 0) && (distance <= attractionRadius))
-    {
-      if (showRadius)
-        this.drawRadius(0, 255, 0, 50, attractionRadius)
-      return true
-    } else
-      return false
-  }
-
-  attract(targetPosition)
-  {
-    let desiredDirection = p5.Vector.sub(targetPosition, this.position)
-    desiredDirection.normalize().mult(maxVelocity)
-
-    let force = p5.Vector.sub(desiredDirection, this.velocity)
-    force.limit(maxAttractionForce)
-
-    this.applyForce(force)
-  }
-
-  avoid(other)
-  {
-    let desiredDirection = p5.Vector.sub(this.position, other.position)
-    desiredDirection.normalize().mult(maxVelocity)
-
-    let force = p5.Vector.add(desiredDirection, this.velocity)
-    force.limit(maxRepulsionForce / (p5.Vector.mag(desiredDirection) ^ 2))
-
-    this.applyForce(force)
-
-    //this.drawArrow(this.position, steer.mult(100), 'white')
-  }
-
-  allign(agents)
+  alignment(agents)
   {
     let desiredAvgVelocity = createVector()
     let total = 0
+    let force = createVector()
     for (let other of agents)
     {
-      if (other != this && this.insideAttractionRadius(other))
+      if (other != this && this.insideRadius(other, radiusA))
       {
         desiredAvgVelocity.add(other.velocity)
         total++
       }
     }
-
     if (total > 0)
     {
       desiredAvgVelocity.div(total)
 
       desiredAvgVelocity.sub(this.velocity)
-      desiredAvgVelocity.normalize().mult(maxVelocity)
+      //desiredAvgVelocity.setMag(maxVelocity)
 
-      let steer = p5.Vector.sub(desiredAvgVelocity, this.velocity)
-      steer.limit(maxAttractionForce)
-
-      this.applyForce(steer)
+      force = p5.Vector.sub(desiredAvgVelocity, this.velocity)
+      force.limit(maxForce)
     }
-  }
+    return force
+  } 
 
-  gather(agents)
+  cohesion(agents)
   {
     let desiredAvgPosition = createVector()
     let total = 0
+    let force = createVector()
     for (let other of agents)
     {
-      if (other != this && this.insideAttractionRadius(other))
+      if (other != this && this.insideRadius(other, radiusC))
       {
         desiredAvgPosition.add(other.position)
         total++
@@ -173,13 +156,38 @@ class Agent
       desiredAvgPosition.div(total)
 
       desiredAvgPosition.sub(this.position)
-      desiredAvgPosition.normalize().mult(maxVelocity)
+      //desiredAvgPosition.setMag(maxVelocity)
 
-      let steer = p5.Vector.sub(desiredAvgPosition, this.velocity)
-      steer.limit(maxAttractionForce)
-
-      this.applyForce(steer)
+      force = p5.Vector.sub(desiredAvgPosition, this.velocity)
+      force.limit(maxForce)
     }
+    return force
+  }
+
+  separation(agents)
+  {
+    let desiredAvgVelocity = createVector()
+    let total = 0
+    let force =  createVector()
+    for (let other of agents)
+    {
+      if (other != this && this.insideRadius(other, radiusS))
+      {
+        let desiredDirection = p5.Vector.sub(this.position, other.position)
+        desiredAvgVelocity.add(desiredDirection)
+
+        total++
+      }
+      if (total > 0)
+      {
+        desiredAvgVelocity.div(total)
+        //desiredAvgVelocity.setMag(maxVelocity)
+
+        force = p5.Vector.sub(desiredAvgVelocity, this.velocity)
+        force.limit(maxForce)
+      }
+    }
+    return force
   }
 
   show()
@@ -197,7 +205,7 @@ class Agent
     //Direction Line 
     stroke(255, 0, 0)
     strokeWeight(2)
-    line(0, 0, DIRECRION_LINE_SIZE, 0)
+    line(0, 0, DIRECTION_LINE_SIZE, 0)
 
     pop()
   }
@@ -232,13 +240,16 @@ class Agent
     showRadius = display
   }
 
-  static setConstants(velocitySliderValue, attractionForceSliderValue, attractionRadiusSliderValue, repulsionForceSliderValue, repulsionRadiusSliderValue)
+  static setConstants(velocitySliderValue, forceSliderValue, alignmentSliderValue, separationSliderValue, cohesionSliderValue, radiusASliderValue, radiusSSliderValue, radiusCSliderValue)
   {
     maxVelocity = velocitySliderValue
-    maxAttractionForce = attractionForceSliderValue
-    attractionRadius = attractionRadiusSliderValue
-    maxRepulsionForce = repulsionForceSliderValue
-    repulsionRadius = repulsionRadiusSliderValue
+    maxForce = forceSliderValue
+    maxAlign = alignmentSliderValue
+    maxSeparation = separationSliderValue
+    maxCohesion = cohesionSliderValue
+    radiusA = radiusASliderValue
+    radiusS = radiusSSliderValue
+    radiusC = radiusCSliderValue
   }
 
 }

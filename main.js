@@ -1,10 +1,8 @@
-let globalGravity = 15
-
-let numberOfAgents = 5
+let numberOfAgents = 100
 let numberOfObstacles = 1
 let numberOfGoals = 1
 
-let agents = []
+let flock = []
 let obstacles = []
 let goals = []
 let wall = []
@@ -18,22 +16,29 @@ let canvasY
 // Slider Objects
 let velocitySlider
 
-let attractionForceSlider
-let attractionRadiusSlider
+let forceSlider
 
-let repulsionForceSlider
-let repulsionRadiusSlider
+let alignmentSlider
+let separationSlider
+let cohesionSlider
+
+let radiusASlider
+let radiusSSlider
+let radiusCSlider
 
 let showRadiusCheckbox
 
 // Slider Values
 let velocitySliderValue = 0
+let forceSliderValue = 0
 
-let attractionForceSliderValue = 0
-let attractionRadiusSliderValue = 0
+let alignmentSliderValue = 0
+let separationSliderValue = 0
+let cohesionSliderValue = 0
 
-let repulsionForceSliderValue = 0
-let repulsionRadiusSliderValue = 0
+let radiusASliderValue = 0
+let radiusSSliderValue = 0
+let radiusCSliderValue = 0
 
 let sliderWidth = 120
 let sliderSpacing = 15
@@ -56,7 +61,7 @@ function setup()
 
   setupUI()
 
-  createWall()
+  //createWall()
 }
 
 // Draw Function ------------------------------------------------------------------------------------------------
@@ -68,82 +73,64 @@ function draw()
 
   drawUI()
 
-  //Update and Draw
-  for (let i = 0; i < obstacles.length; i++)
-  {
-    obstacles[i].show()
-  }
+  // //Update and Draw
+  // for (let i = 0; i < obstacles.length; i++)
+  // {
+  //   obstacles[i].show()
+  // }
 
-  //Update and Draw
-  for (let i = 0; i < wall.length; i++)
-  {
-    wall[i].show()
-  }
+  // //Update and Draw
+  // for (let i = 0; i < wall.length; i++)
+  // {
+  //   wall[i].show()
+  // }
 
-  //Update and Draw
-  for (let i = 0; i < goals.length; i++)
-  {
-    goals[i].show()
-  }
+  // //Update and Draw
+  // for (let i = 0; i < goals.length; i++)
+  // {
+  //   goals[i].show()
+  // }
 
   //Check Interactions
-  for (let i = 0; i < agents.length; i++)
+  for (let agent of flock)
   {
+    agent.behave(flock)
+    agent.update()
+    agent.show()
 
+    // //Between Agents and Obstacles
+    // for (let j = 0; j < obstacles.length; j++)
+    // {
+    //   if (obstacles[j].insideOrbit(flock[i]))
+    //   {
+    //     obstacles[j].act(flock[i])
+    //   }
+    // }
 
-    //agents[i].attract(createVector(mouseX,mouseY))
-    agents[i].allign(agents)
-    agents[i].gather(agents)
-    agents[i].update()
-    agents[i].show()
+    // //Between Agents and Walls
+    // for (let j = 0; j < wall.length; j++)
+    // {
+    //   if (wall[j].insideOrbit(agents[i]))
+    //   {
+    //     wall[j].act(agents[i])
+    //   }
+    // }
 
-    //Between Agents and Agents
-    for (let j = 0; j < agents.length; j++)
-    {
-      if (i != j && agents[i].insideRepulsionRadius(agents[j]))
-      {
-        agents[i].avoid(agents[j])
-      }
-      if (i != j && agents[i].insideAttractionRadius(agents[j]))
-      {
-        //agents[i].allign(agents)
-       // agents[i].gather(agents)
-      }
-    }
+    // //Between Agents and Goals
+    // for (let j = 0; j < goals.length; j++)
+    // {
+    //   if (goals[j].insideOrbit(agents[i]))
+    //   {
+    //     goals[j].act(agents[i])
 
-    //Between Agents and Obstacles
-    for (let j = 0; j < obstacles.length; j++)
-    {
-      if (obstacles[j].insideOrbit(agents[i]))
-      {
-        obstacles[j].act(agents[i])
-      }
-    }
-
-    //Between Agents and Walls
-    for (let j = 0; j < wall.length; j++)
-    {
-      if (wall[j].insideOrbit(agents[i]))
-      {
-        wall[j].act(agents[i])
-      }
-    }
-
-    //Between Agents and Goals
-    for (let j = 0; j < goals.length; j++)
-    {
-      if (goals[j].insideOrbit(agents[i]))
-      {
-        goals[j].act(agents[i])
-
-        let dist = p5.Vector.dist(agents[i].position, goals[j].position)
-        if ((dist > 0) && (dist <= 5))
-        {
-          agents.splice(i, 1)
-          break
-        }
-      }
-    }
+    //     let dist = p5.Vector.dist(agents[i].position, goals[j].position)
+    //     if ((dist > 0) && (dist <= 5))
+    //     {
+    //       agents.splice(i, 1)
+    //       break
+    //     }
+    //   }
+    // }
 
   }
 
@@ -163,8 +150,8 @@ function mousePressed(event)
       case 'agent':
         for (let i = 0; i < numberOfAgents; i++)
         {
-          //agents.push(new Agent(random(0, windowWidth), random(0, windowHeight)))
-          agents.push(new Agent(mouseX, mouseY))
+          flock.push(new Agent(random(0, windowWidth), random(0, windowHeight)))
+          //flock.push(new Agent(mouseX, mouseY))
         }
         break
 
@@ -211,28 +198,40 @@ function setupUI()
 {
   textSize(12)
 
-  velocitySlider = createSlider(0, 50, 5, 0.05)
+  velocitySlider = createSlider(0, 15, 3.4, 0.01)
   velocitySlider.style('width', str(sliderWidth) + 'px')
   velocitySlider.position(firstSliderX, sliderY)
 
-  attractionForceSlider = createSlider(0, 5, 0.05, 0.01)
-  attractionForceSlider.style('width', str(sliderWidth) + 'px')
-  attractionForceSlider.position(firstSliderX + sliderWidth + sliderSpacing, sliderY)
+  forceSlider = createSlider(0, 5, 0.1, 0.0001)
+  forceSlider.style('width', str(sliderWidth) + 'px')
+  forceSlider.position(firstSliderX + sliderWidth + sliderSpacing, sliderY)
 
-  attractionRadiusSlider = createSlider(0, 350, 115, 2)
-  attractionRadiusSlider.style('width', str(sliderWidth) + 'px')
-  attractionRadiusSlider.position(firstSliderX + 2 * (sliderWidth + sliderSpacing), sliderY)
+  alignmentSlider = createSlider(0, 2, 1.48, 0.0001)
+  alignmentSlider.style('width', str(sliderWidth) + 'px')
+  alignmentSlider.position(firstSliderX + 2 * (sliderWidth + sliderSpacing), sliderY)
 
-  repulsionForceSlider = createSlider(0, 5, 0.45, 0.01)
-  repulsionForceSlider.style('width', str(sliderWidth) + 'px')
-  repulsionForceSlider.position(firstSliderX + 3 * (sliderWidth + sliderSpacing), sliderY)
+  separationSlider = createSlider(0, 5, 2.0, 0.0001)
+  separationSlider.style('width', str(sliderWidth) + 'px')
+  separationSlider.position(firstSliderX + 3 * (sliderWidth + sliderSpacing), sliderY)
 
-  repulsionRadiusSlider = createSlider(0, 250, 60, 2)
-  repulsionRadiusSlider.style('width', str(sliderWidth) + 'px')
-  repulsionRadiusSlider.position(firstSliderX + 4 * (sliderWidth + sliderSpacing), sliderY)
+  cohesionSlider = createSlider(0, 2, 1.71, 0.0001)
+  cohesionSlider.style('width', str(sliderWidth) + 'px')
+  cohesionSlider.position(firstSliderX + 4 * (sliderWidth + sliderSpacing), sliderY)
+
+  radiusASlider = createSlider(0, 200, 120, 1)
+  radiusASlider.style('width', str(sliderWidth) + 'px')
+  radiusASlider.position(firstSliderX + 5 * (sliderWidth + sliderSpacing), sliderY)
+
+  radiusSSlider = createSlider(0, 200, 90, 1)
+  radiusSSlider.style('width', str(sliderWidth) + 'px')
+  radiusSSlider.position(firstSliderX + 6 * (sliderWidth + sliderSpacing), sliderY)
+
+  radiusCSlider = createSlider(0, 200, 150, 1)
+  radiusCSlider.style('width', str(sliderWidth) + 'px')
+  radiusCSlider.position(firstSliderX + 7 * (sliderWidth + sliderSpacing), sliderY)
 
   showRadiusCheckbox = createCheckbox('Display Radius', false)
-  showRadiusCheckbox.position(firstSliderX + 5 * (sliderWidth + sliderSpacing), sliderY)
+  showRadiusCheckbox.position(firstSliderX + 8 * (sliderWidth + sliderSpacing), sliderY)
   showRadiusCheckbox.changed(showRadiusCheckboxEvent)
 
 
@@ -242,14 +241,17 @@ function setupUI()
 function updateConstants()
 {
   velocitySliderValue = velocitySlider.value()
+  forceSliderValue = forceSlider.value()
 
-  attractionForceSliderValue = attractionForceSlider.value()
-  attractionRadiusSliderValue = attractionRadiusSlider.value()
+  alignmentSliderValue = alignmentSlider.value()
+  separationSliderValue = separationSlider.value()
+  cohesionSliderValue = cohesionSlider.value()
 
-  repulsionForceSliderValue = repulsionForceSlider.value()
-  repulsionRadiusSliderValue = repulsionRadiusSlider.value()
+  radiusASliderValue = radiusASlider.value()
+  radiusSSliderValue = radiusSSlider.value()
+  radiusCSliderValue = radiusCSlider.value()
 
-  Agent.setConstants(velocitySliderValue, attractionForceSliderValue, attractionRadiusSliderValue, repulsionForceSliderValue, repulsionRadiusSliderValue)
+  Agent.setConstants(velocitySliderValue, forceSliderValue, alignmentSliderValue, separationSliderValue, cohesionSliderValue, radiusASliderValue, radiusSSliderValue, radiusCSliderValue)
 }
 
 //Draw values from engine in UI ---------------------------------------------------------------------------------
@@ -258,10 +260,13 @@ function drawUI()
   fill(200)
   noStroke()
   text('Velocity: ' + velocitySliderValue, firstSliderX, windowHeight - 70)
-  text('Attraction Force: ' + attractionForceSliderValue, firstSliderX + sliderWidth + sliderSpacing, textY)
-  text('Attraction Radius: ' + attractionRadiusSliderValue, firstSliderX + 2 * (sliderWidth + sliderSpacing), textY)
-  text('Repulsion Force: ' + repulsionForceSliderValue, firstSliderX + 3 * (sliderWidth + sliderSpacing), textY)
-  text('Repulsion Radius: ' + repulsionRadiusSliderValue, firstSliderX + 4 * (sliderWidth + sliderSpacing), textY)
+  text('Force: ' + forceSliderValue, firstSliderX + sliderWidth + sliderSpacing, textY)
+  text('Alignment: ' + alignmentSliderValue, firstSliderX + 2 * (sliderWidth + sliderSpacing), textY)
+  text('Separation: ' + separationSliderValue, firstSliderX + 3 * (sliderWidth + sliderSpacing), textY)
+  text('Cohesion: ' + cohesionSliderValue, firstSliderX + 4 * (sliderWidth + sliderSpacing), textY)
+  text('Radius A: ' + radiusASliderValue, firstSliderX + 5 * (sliderWidth + sliderSpacing), textY)
+  text('Radius S: ' + radiusSSliderValue, firstSliderX + 6 * (sliderWidth + sliderSpacing), textY)
+  text('Radius C: ' + radiusCSliderValue, firstSliderX + 7 * (sliderWidth + sliderSpacing), textY)
 
 }
 
@@ -285,7 +290,7 @@ function createWall()
 
   let wallSize = 30
   let wallRadius = 100
-  let wallForce = 15
+  let wallForce = 25
 
   for (let x = 0; x < windowWidth; x += spacing)
   {
