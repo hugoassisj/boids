@@ -92,20 +92,22 @@ function draw()
 
 
     //agents[i].attract(createVector(mouseX,mouseY))
+    agents[i].allign(agents)
+    agents[i].gather(agents)
     agents[i].update()
     agents[i].show()
 
     //Between Agents and Agents
     for (let j = 0; j < agents.length; j++)
     {
-      if (i != j && agents[i].checkRepulsionDistance(agents[j]))
+      if (i != j && agents[i].insideRepulsionRadius(agents[j]))
       {
         agents[i].avoid(agents[j])
       }
-      if (i != j && agents[i].checkAttractionDistance(agents[j]))
+      if (i != j && agents[i].insideAttractionRadius(agents[j]))
       {
-        agents[i].align(agents)
-        //agents[i].gather(agents)
+        //agents[i].allign(agents)
+       // agents[i].gather(agents)
       }
     }
 
@@ -209,23 +211,23 @@ function setupUI()
 {
   textSize(12)
 
-  velocitySlider = createSlider(0, 50, 3.5, 0.05)
+  velocitySlider = createSlider(0, 50, 5, 0.05)
   velocitySlider.style('width', str(sliderWidth) + 'px')
   velocitySlider.position(firstSliderX, sliderY)
 
-  attractionForceSlider = createSlider(0, 5, 0.3, 0.01)
+  attractionForceSlider = createSlider(0, 5, 0.05, 0.01)
   attractionForceSlider.style('width', str(sliderWidth) + 'px')
   attractionForceSlider.position(firstSliderX + sliderWidth + sliderSpacing, sliderY)
 
-  attractionRadiusSlider = createSlider(0, 350, 80, 2)
+  attractionRadiusSlider = createSlider(0, 350, 115, 2)
   attractionRadiusSlider.style('width', str(sliderWidth) + 'px')
   attractionRadiusSlider.position(firstSliderX + 2 * (sliderWidth + sliderSpacing), sliderY)
 
-  repulsionForceSlider = createSlider(0, 5, 0.3, 0.01)
+  repulsionForceSlider = createSlider(0, 5, 0.45, 0.01)
   repulsionForceSlider.style('width', str(sliderWidth) + 'px')
   repulsionForceSlider.position(firstSliderX + 3 * (sliderWidth + sliderSpacing), sliderY)
 
-  repulsionRadiusSlider = createSlider(0, 250, 125, 2)
+  repulsionRadiusSlider = createSlider(0, 250, 60, 2)
   repulsionRadiusSlider.style('width', str(sliderWidth) + 'px')
   repulsionRadiusSlider.position(firstSliderX + 4 * (sliderWidth + sliderSpacing), sliderY)
 

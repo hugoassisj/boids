@@ -80,7 +80,7 @@ class Agent
     }
   }
 
-  checkRepulsionDistance(other)
+  insideRepulsionRadius(other)
   {
     let distance = p5.Vector.dist(this.position, other.position)
     if ((distance > 0) && (distance <= repulsionRadius))
@@ -92,7 +92,7 @@ class Agent
       return false
   }
 
-  checkAttractionDistance(other)
+  insideAttractionRadius(other)
   {
     let distance = p5.Vector.dist(this.position, other.position)
     if ((distance > 0) && (distance <= attractionRadius))
@@ -121,53 +121,65 @@ class Agent
     desiredDirection.normalize().mult(maxVelocity)
 
     let force = p5.Vector.add(desiredDirection, this.velocity)
-    force.limit(maxRepulsionForce/ (p5.Vector.mag(desiredDirection) ^ 2))
+    force.limit(maxRepulsionForce / (p5.Vector.mag(desiredDirection) ^ 2))
 
     this.applyForce(force)
 
     //this.drawArrow(this.position, steer.mult(100), 'white')
   }
 
-  align(agents)
+  allign(agents)
   {
-    let desiredVelocity = createVector()
+    let desiredAvgVelocity = createVector()
     let total = 0
     for (let other of agents)
     {
-      desiredVelocity.add(other.velocity)
-      total++
+      if (other != this && this.insideAttractionRadius(other))
+      {
+        desiredAvgVelocity.add(other.velocity)
+        total++
+      }
     }
+
     if (total > 0)
-      desiredVelocity.div(total)
+    {
+      desiredAvgVelocity.div(total)
 
-    desiredVelocity.sub(this.velocity)
-    desiredVelocity.normalize().mult(maxVelocity)
+      desiredAvgVelocity.sub(this.velocity)
+      desiredAvgVelocity.normalize().mult(maxVelocity)
 
-    let steer = p5.Vector.sub(desiredVelocity, this.velocity)
-    steer.limit(maxAttractionForce)
+      let steer = p5.Vector.sub(desiredAvgVelocity, this.velocity)
+      steer.limit(maxAttractionForce)
 
-    this.applyForce(steer)
+      this.applyForce(steer)
+    }
   }
 
   gather(agents)
   {
-    let desiredPosition = createVector()
+    let desiredAvgPosition = createVector()
     let total = 0
     for (let other of agents)
     {
-      desiredPosition.add(other.position)
-      total++
+      if (other != this && this.insideAttractionRadius(other))
+      {
+        desiredAvgPosition.add(other.position)
+        total++
+      }
     }
+
     if (total > 0)
-      desiredPosition.div(total)
+    {
+      desiredAvgPosition.div(total)
 
-    desiredPosition.sub(this.position)
-    desiredPosition.normalize().mult(maxVelocity)
+      desiredAvgPosition.sub(this.position)
+      desiredAvgPosition.normalize().mult(maxVelocity)
 
-    let vel = p5.Vector.sub(desiredPosition, this.position)
-    vel.limit(maxAttractionForce)
+      let steer = p5.Vector.sub(desiredAvgPosition, this.velocity)
+      steer.limit(maxAttractionForce)
 
-    this.applyForce(vel)
+      this.applyForce(steer)
+    }
   }
 
   show()
